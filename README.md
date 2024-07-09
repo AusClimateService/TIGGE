@@ -8,7 +8,7 @@ The data are downloaded to NCI using the following data reference syntax:
 ```
 /g/data/xv83/TIGGE/data/{model}/{variable}/{type}/{year}/{month}/{variable}_6hr_{model}_{type}_{grid}_{YYYYMMDD}.grib
 ```
-For example, perturbed forecast surface temperature (`t2m`) data from the ECMWF forecast model
+For example, perturbed forecast (`pf`) surface temperature (`t2m`) data from the ECMWF forecast model
 on a 0.5 degree grid for the Australian region (`AUS`) for a starting date of 25 June 2011
 would be archived as follows:
 
