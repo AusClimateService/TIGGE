@@ -37,15 +37,16 @@ __Parameters:__
   * ```t2m```: 2 meter temperature
   * ```tp```: Total precipitation
   * ```gh```: Geopotential height at 500hPa
-* start_day: The day of the month to start retrieval from. This is optional (default is 1). I have included this as sometimes a month doesn't get the chance to fully download, and it can be useful to start from a particular day. 
+* start_day: The day of the month to start retrieval from. This is optional (default is 1). This is included as sometimes a month doesn't get the chance to fully download, and it can be useful to start from a particular day. 
 
 Example requests:
 ```
 python TIGGE_data_retrieval.py 2007 2008 t2m tp gh
 
-python TIGGE_data_retrieval.py 2007-01 gh --start_day=5
+python TIGGE_data_retrieval.py 2007-01 gh --start_day 5
 ```
 
+Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted, they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
 ## Storage
 
 The data are downloaded to NCI using the following data reference syntax:
