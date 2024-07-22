@@ -1,6 +1,42 @@
 # TIGGE
 
-This project provides download scripts for the [TIGGE](https://confluence.ecmwf.int/display/TIGGE) data from the ECMWF server. It allows users to retrieve and download forecasts for specific time periods and variables. 
+This project provides a download script for the [TIGGE](https://confluence.ecmwf.int/display/TIGGE) data from the ECMWF server. Specifically, the script is designed to retrieve data for the ECMWF model, though this could be adapted for other models without too much hassle. It allows users to download forecasts for specific time periods and variables.
+
+*__NOTE__: Public access to this dataset will be transitioning to a new interface, with dates to be announced soon. This may impact this retrieval method. On the ECMWF website you are directed [here](https://confluence.ecmwf.int/display/DAC/Decommissioning+of+ECMWF+Public+Datasets+Service) for more information on how to access this data in the future.*
+
+## ECMWF TIGGE Data Parameters
+
+The ECMWF TIGGE dataset has specific characteristics and parameters. This tool retrieves data with the following specifications:
+
+#### Forecast Types
+- Control Forecast (cf)
+- Perturbed Forecast (pf)
+
+#### Initialization Times
+- 00:00:00 UTC
+- 12:00:00 UTC
+
+#### Ensemble Members
+- Control Forecast: 1 member
+- Perturbed Forecast: 50 members
+
+#### Forecast Length
+- Total forecast length: 360 hours (15 days)
+- Time step: 6 hours
+
+#### Spatial Resolution
+- Grid: 0.5° x 0.5° (global)
+
+#### Variables Available
+- 2-meter Temperature (t2m)
+- Total Precipitation (tp)
+- Geopotential Height at 500 hPa (gh)
+
+#### Data Range
+- Available data spans from October 2006 to present day
+
+#### Data Format
+- Output format: GRIB
 
 ## Requirements
 
@@ -52,6 +88,9 @@ python TIGGE_data_retrieval.py 2007-01 gh --start_day 5
 ```
 
 Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted, they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
+
+The script first retrieves the single control forecast before then proceeding to retrieve a file with all 50 ensembles members for the perturbed forecasts. For this reason, you will find that every second download will take significantly longer, and thus will sit at the "Request is active" output for 10+ minutes. 
+
 ## Storage
 
 The data are downloaded to NCI using the following data reference syntax:
