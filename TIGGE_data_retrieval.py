@@ -1,76 +1,104 @@
 from ecmwfapi import ECMWFDataServer
-import sys
 from calendar import monthrange
+from datetime import datetime, timedelta
+import argparse
 
 server = ECMWFDataServer()
-
-VAR_PARAM_NUMBER = {
-                    "t2m" : "167", 
-                    "tp" : "228228",
-                    "gh" : "156",
+variable_dict = {
+    "t2m": "167",
+    "tp": "228228",
+    "gh": "156",
 }
 
-def data_retriever(year, variable):
+def parse_time_period(period):
+    if len(period) == 4:  # YYYY format
+        return datetime(int(period), 1, 1), datetime(int(period), 12, 31)
+    elif len(period) == 7:  # YYYY-MM format
+        year, month = map(int, period.split('-'))
+        _, last_day = monthrange(year, month)
+        return datetime(year, month, 1), datetime(year, month, last_day)
+    else:
+        raise ValueError(f"Invalid time period format: {period}")
 
+def data_retriever(time_periods, variables, start_day=1):
     """
-    Retrieves TIGGE data for a given year and variable from ECMWF for both control and perturbed forecasts. 
+    Retrieves TIGGE data for given time periods and variables from ECMWF for both control and perturbed forecasts. 
     The gridding size is the default 0.5/0.5.
-    The area is N/W/S/E = 0/90/-55/180 (Australia region).
-
+    The area is global.
+    
     Args:
-        year (str): Year in YYYY format
-        variable (str): Variable  to retrieve data for. Options are:
+        time_periods (list): List of time periods in YYYY or YYYY-MM format
+        variables (list): List of variables to retrieve data for. Options are:
            - t2m: 2 meter temperature
            - tp: Total precipitation
            - gh: Geopotential height at 500hPa
-
+        start_day (int): The day of the month to start from (default is 1)
+           
     Returns: 
         None. Saves .grib files for each day, for both perturbed and control forecasts. 
         The files will be saved to /g/data/xv83/TIGGE/data/ECMWF
-
     """
-
-    levtype = "pl" if variable == "gh" else "sfc"
     
-    for month in range(1, 13):
-        _, days_in_month = monthrange(int(year), month)
-        month_str = f"{month:02d}"
+    for period in time_periods:
+        try:
+            start_date, end_date = parse_time_period(period)
+            # Adjust start_date to the specified start_day
+            start_date = start_date.replace(day=start_day)
+            if start_date > end_date:
+                print(f"Start day {start_day} is after the end of the period for {period}. Skipping.")
+                continue
+        except ValueError as e:
+            print(str(e))
+            continue
         
-        for day in range(1, days_in_month + 1):
-            day_str = f"{day:02d}"
-            
-            for type_val in ["cf", "pf"]:
-                retrieve_dict = {
-                    "class": "ti",
-                    "dataset": "tigge",
-                    "date": f"{year}-{month_str}-{day_str}",
-                    "expver": "prod",
-                    "grid": "0.5/0.5",
-                    "area": "0/90/-50/180",
-                    "levtype": levtype,
-                    "origin": "ecmf",
-                    "param": VAR_PARAM_NUMBER[variable],
-                    "step": "/".join(str(i) for i in range(0, 361, 6)),
-                    "time": "00:00:00/12:00:00",
-                    "type": type_val,
-                    "target": f"/g/data/xv83/TIGGE/data/ECMWF/{variable}/{type_val}/{year}/{month_str}/{variable}_6hr_ECMWF_{type_val}_AUS-05_{variable}_{year}{month_str}{day_str}.grib"
-                }
+        current_date = start_date
+        while current_date <= end_date:
+            year = current_date.strftime("%Y")
+            month = current_date.strftime("%m")
+            day = current_date.strftime("%d")
+
+            for variable in variables:
+                levtype = "pl" if variable == "gh" else "sfc"
                 
-                if variable == "gh":
-                    retrieve_dict["levelist"] = "500"
-                if type_val == "pf":
-                    retrieve_dict["number"] = "/".join(str(i) for i in range(1, 51))
+                for time in ["00:00:00", "12:00:00"]:
+                    for type_val in ["cf", "pf"]:
+                        retrieve_dict = {
+                            "class": "ti",
+                            "dataset": "tigge",
+                            "grid": "0.5/0.5",
+                            "date": f"{year}-{month}-{day}",
+                            "expver": "prod",
+                            "levtype": levtype,
+                            "origin": "ecmf",
+                            "param": variable_dict[variable],
+                            "step": "/".join(str(i) for i in range(0, 361, 6)),
+                            "number": "/".join(str(i) for i in range(1, 51)),
+                            "time": time,
+                            "type": type_val,
+                            "target": f"/g/data/xv83/TIGGE/data/ECMWF/{variable}/{type_val}/{year}/{month}/{time[:2]+time[3:5]}/{variable}_6hr_ECMWF_{type_val}_GLO-05_{year}{month}{day}.grib"
+                        }
+                        
+                        if variable == "gh":
+                            retrieve_dict["levelist"] = "500"
+                        
+                        try:
+                            # print(retrieve_dict)
+                            server.retrieve(retrieve_dict)
+                        except Exception as e:
+                            print(f"Error retrieving data for {year}-{month}-{day}, {variable}, {time}: {str(e)}")
+            
+            current_date += timedelta(days=1)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Retrieve ECMWF TIGGE data.')
+    parser.add_argument('time_periods', nargs='+', help='Time periods in YYYY or YYYY-MM format')
+    parser.add_argument('variables', nargs='+', choices=['t2m', 'tp', 'gh'], help='Variables to retrieve')
+    parser.add_argument('--start_day', type=int, default=1, help='Day of the month to start retrieval')
     
-                server.retrieve(retrieve_dict)
-        
-
-
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python script.py <year> <variable>")
-        sys.exit(1)
+    args = parser.parse_args()
     
-    year = sys.argv[1]
-    variable = sys.argv[2]
+    data_retriever(args.time_periods, args.variables, start_day=args.start_day)
 
-data_retriever(year, variable)
+if __name__ == '__main__':
+    main()
