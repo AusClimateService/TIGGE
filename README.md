@@ -9,16 +9,12 @@ This project provides a download script for the [TIGGE](https://confluence.ecmwf
 The ECMWF TIGGE dataset has specific characteristics and parameters. This tool retrieves data with the following specifications:
 
 #### Forecast Types
-- Control Forecast (cf)
-- Perturbed Forecast (pf)
+- Control Forecast (cf): 1 ensemble member
+- Perturbed Forecast (pf): 50 ensemble members
 
 #### Initialization Times
 - 00:00:00 UTC
 - 12:00:00 UTC
-
-#### Ensemble Members
-- Control Forecast: 1 member
-- Perturbed Forecast: 50 members
 
 #### Forecast Length
 - Total forecast length: 360 hours (15 days)
