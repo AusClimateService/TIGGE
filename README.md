@@ -6,7 +6,7 @@ This project provides a download script for the [TIGGE](https://confluence.ecmwf
 
 ## ECMWF TIGGE Data Parameters
 
-The ECMWF TIGGE dataset has specific characteristics and parameters. This tool retrieves data with the following specifications:
+This tool retrieves data from the ECMWF model with the following specifications:
 
 #### Forecast Types
 - Control Forecast (cf): 1 ensemble member
@@ -83,9 +83,9 @@ python TIGGE_data_retrieval.py 2007 2008 t2m tp gh
 python TIGGE_data_retrieval.py 2007-01 gh --start_day 5
 ```
 
-Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted, they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
+Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
 
-The script first retrieves the single control forecast before then proceeding to retrieve a file with all 50 ensembles members for the perturbed forecasts. For this reason, you will find that every second download will take significantly longer, and thus will sit at the "Request is active" output for 10+ minutes. 
+The script is designed to send off a request one day at a time, iterating through a loop until it reaches the desired time span. It first fetches the single control forecast, then the perturbed forecast file with all 50 ensemble members. For this reason, you will find that every second download will take significantly longer, and thus will sit at "Request is active" for a while. 
 
 ## Storage
 
