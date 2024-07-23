@@ -2,7 +2,7 @@
 
 This project provides a download script for the [TIGGE](https://confluence.ecmwf.int/display/TIGGE) data from the ECMWF server. Specifically, the script is designed to retrieve data for the ECMWF model, though this could be adapted for other models without too much hassle. It allows users to download forecasts for specific time periods and variables.
 
-*__NOTE__: Public access to this dataset will be transitioning to a new interface, with dates to be announced soon. This may impact this retrieval method. On the ECMWF website you are directed [here](https://confluence.ecmwf.int/display/DAC/Decommissioning+of+ECMWF+Public+Datasets+Service) for more information on how to access this data in the future.*
+*__NOTE__: Public access to this dataset will be transitioning to a new interface, with dates to be announced soon. This may impact this retrieval method. On the ECMWF website they direct you [here](https://confluence.ecmwf.int/display/DAC/Decommissioning+of+ECMWF+Public+Datasets+Service) for more information on how to access this data in the future.*
 
 ## ECMWF TIGGE Data Parameters
 
