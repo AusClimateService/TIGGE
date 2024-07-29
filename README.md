@@ -1,8 +1,15 @@
 # TIGGE
 
-This project provides a download script for the [TIGGE](https://confluence.ecmwf.int/display/TIGGE) data from the ECMWF server. Specifically, the script is designed to retrieve data for the ECMWF model, though this could be adapted for other models without too much hassle. It allows users to download forecasts for specific time periods and variables.
+This project provides download scripts for the [TIGGE](https://confluence.ecmwf.int/display/TIGGE) data from the ECMWF server. Specifically, the scripts are designed to retrieve data for the ECMWF forecast model, though this could be adapted for other models without too much hassle. It allows users to download forecasts for specific time periods and variables.
 
 *__NOTE__: Public access to this dataset will be transitioning to a new interface, with dates to be announced soon. This may impact this retrieval method. On the ECMWF website they direct you [here](https://confluence.ecmwf.int/display/DAC/Decommissioning+of+ECMWF+Public+Datasets+Service) for more information on how to access this data in the future.*
+
+## Contents
+1. `TIGGE_data_retrival.py`: A Python script which can be run from the command line to download TIGGE data.
+2. `TIGGE_copyq_job.sh`: A shell script for submitting a job to the NCI copyq queue.
+3. `TIGGE_copyq_job.py`: A Python script executed by the shell script.
+
+The copyq files accomplish the same thing as `TIGGE_data_retrival.py` - I have just provided alternative options based on the preference of the user. 
 
 ## ECMWF TIGGE Data Parameters
 
@@ -64,7 +71,9 @@ __Install the ECMWF client:__
 
 ## Usage
 
-The .py script can be run from the command line with: 
+### Option 1: Executing the Python Script from the Command Line
+
+`TIGGE_data_retrieval.py` can be run from the command line with: 
 ```
 python TIGGE_data_retrieval.py <time_periods>... <variables>... [--start_day START_DAY]
 ```
@@ -82,10 +91,24 @@ python TIGGE_data_retrieval.py 2007 2008 t2m tp gh
 
 python TIGGE_data_retrieval.py 2007-01 gh --start_day 5
 ```
+The script is designed to send off a request one day at a time, iterating through a loop until it reaches the desired time span. It first fetches the single control forecast, then the perturbed forecast file with all 50 ensemble members. For this reason, you will find that every second download will take significantly longer, and thus will sit at "Request is active" for a while. 
+
+### Option 2: Submitting an NCI CopyQ Job
+
+To submit a job to the NCI copyq queue:
+
+1. Ensure you have access to the NCI system and the required projects (xv83, hh5).
+2. Make sure `TIGGE_copyq_job.py` contains the desired data retrieval parameters. There is a section at the top of the script to edit.
+3. Ensuring you are in the directory containing both the .py and .sh files, submit the job using the following command:
+```
+qsub TIGGE_copyq_job.sh
+```
+This will execute TIGGE_copyq_job.py in the copyq queue with the specified resources. Note that the maximum walltime for the copyq queue is 10 hours. Once the job has completed/reached its maximum time allowance, it will return an output file and error report in the same directory as the files. You can check on your job status with `qstat`. 
+
+### Extra Info
 
 Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
 
-The script is designed to send off a request one day at a time, iterating through a loop until it reaches the desired time span. It first fetches the single control forecast, then the perturbed forecast file with all 50 ensemble members. For this reason, you will find that every second download will take significantly longer, and thus will sit at "Request is active" for a while. 
 
 ## Storage
 
