@@ -43,7 +43,7 @@ This tool retrieves data from the ECMWF model with the following specifications:
 
 ## Requirements
 
-Before you execute the script, you will need to do the following;
+Before you execute the either of the scripts, you will need to do the following;
 
 __Sign up and retrieve your key:__
   1. Visit ECMWF's [TIGGE portal](http://apps.ecmwf.int/datasets/data/tigge)
@@ -57,23 +57,16 @@ __Sign up and retrieve your key:__
     "email" : "your.email@example.com"
   }
   ```
-       
-
-__Install the ECMWF client:__  
-  The client is already installed in the analysis3-24.04 module on hh5. Use this module with:
-  ```
-  module use /g/data/hh5/public/modules
-  module load conda/analysis3-24.04
-```
-  If you would like to add it to your own environment instead, do so with ```python3 -m pip install -v --no-binary :all: ecmwf-api-client```
-
-
 
 ## Usage
 
 ### Option 1: Executing the Python Script from the Command Line
-
-`TIGGE_data_retrieval.py` can be run from the command line with: 
+First, load a module that has the ECMWF API client. Currently the module analysis3-24.04 on hh5 has it installed. Load the module with:
+  ```
+  module use /g/data/hh5/public/modules
+  module load conda/analysis3-24.04
+```
+Ensuring you are in the directory with `TIGGE_data_retrieval.py` in it, run the script from the command line with: 
 ```
 python TIGGE_data_retrieval.py <time_periods>... <variables>... [--start_day START_DAY]
 ```
@@ -97,17 +90,17 @@ The script is designed to send off a request one day at a time, iterating throug
 
 To submit a job to the NCI copyq queue:
 
-1. Ensure you have access to the NCI system and the required projects (xv83, hh5).
+1. Check you have access to the required projects (xv83, hh5).
 2. Make sure `TIGGE_copyq_job.py` contains the desired data retrieval parameters. There is a section at the top of the script to edit.
 3. Ensuring you are in the directory containing both the .py and .sh files, submit the job using the following command:
 ```
 qsub TIGGE_copyq_job.sh
 ```
-This will execute TIGGE_copyq_job.py in the copyq queue with the specified resources. Note that the maximum walltime for the copyq queue is 10 hours. Once the job has completed/reached its maximum time allowance, it will return an output file and error report in the same directory as the files. You can check on your job status with `qstat`. 
+This will execute `TIGGE_copyq_job.py` in the copyq queue with the specified resources. Note that the maximum walltime for the copyq queue is 10 hours. Once the job has completed/reached its maximum time allowance, it will return an output file and error report in the same directory as the files. You can check on your job status with `qstat`. 
 
 ### Extra Info
 
-Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted they will enter a queue. You can view your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
+Due to ECMWF's restrictions, you are only allowed to submit one request at a time per account. If multiple requests are submitted they will enter a queue. You can view and manage your active and queued requests [here](https://apps.ecmwf.int/webmars/joblist/).
 
 
 ## Storage
