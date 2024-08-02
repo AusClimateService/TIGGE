@@ -4,9 +4,10 @@ from datetime import datetime, timedelta
 import argparse
 
 ### Enter inputs here #####
-time_periods = ["2008-01"]
-variables = ["gh"]
-start_day = 1
+time_periods = ["2008-01", "2009"] # Must be in YYYY or YYYY-MM format
+variables = ["gh", "tp"] # Options are gh (geopotential height), tp (total precip), or t2m (2-meter temp)
+start_day = 1 # Use this to start from a given day of the month if using YYYY-MM format.
+              # This can be useful if a whole month doesn't get the chance to fully download. 
 
 
 server = ECMWFDataServer()
